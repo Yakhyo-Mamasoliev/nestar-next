@@ -12,11 +12,11 @@ import { userVar } from '../../../apollo/store';
 
 interface TopPropertyCardProps {
 	property: Property;
-	likePropertyHandler:any;
+	likePropertyHandler: any;
 }
 
 const TopPropertyCard = (props: TopPropertyCardProps) => {
-	const { property,likePropertyHandler } = props;
+	const { property, likePropertyHandler } = props;
 	const device = useDeviceDetect();
 	const router = useRouter();
 	const user = useReactiveVar(userVar);

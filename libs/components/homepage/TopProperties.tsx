@@ -25,10 +25,9 @@ const TopProperties = (props: TopPropertiesProps) => {
 	const [topProperties, setTopProperties] = useState<Property[]>([]);
 
 	/** APOLLO REQUESTS **/
-		const [likeTargetProperty] = useMutation(LIKE_TARGET_PROPERTY);
+	const [likeTargetProperty] = useMutation(LIKE_TARGET_PROPERTY);
 
-
-		const {
+	const {
 		loading: getPropertiesLoading,
 		data: getPropertiesData,
 		error: getPropertiesError,
@@ -39,8 +38,8 @@ const TopProperties = (props: TopPropertiesProps) => {
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
 			setTopProperties(data?.getProperties?.list);
-        },
-	})
+		},
+	});
 
 	/** HANDLERS **/
 
@@ -49,16 +48,16 @@ const TopProperties = (props: TopPropertiesProps) => {
 			if (!id) return;
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
 			await likeTargetProperty({
-				variables: { input: id }
+				variables: { input: id },
 			});
-			await getPropertiesRefetch({ input: initialInput })
-			
-			await sweetTopSmallSuccessAlert("success", 800);
+			await getPropertiesRefetch({ input: initialInput });
+
+			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
 			console.log('ERROR, likePropertyHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
 		}
-	}
+	};
 
 	if (device === 'mobile') {
 		return (
@@ -78,7 +77,7 @@ const TopProperties = (props: TopPropertiesProps) => {
 							{topProperties.map((property: Property) => {
 								return (
 									<SwiperSlide className={'top-property-slide'} key={property?._id}>
-										<TopPropertyCard property={property} likePropertyHandler={likePropertyHandler}/>
+										<TopPropertyCard property={property} likePropertyHandler={likePropertyHandler} />
 									</SwiperSlide>
 								);
 							})}
