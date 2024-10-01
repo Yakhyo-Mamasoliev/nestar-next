@@ -25,19 +25,21 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 	const [trendProperties, setTrendProperties] = useState<Property[]>([]);
 
 	/** APOLLO REQUESTS **/
-	const [likeTargetProperty] = useMutation(LIKE_TARGET_PROPERTY);
+	const [likeTargetProperty] = useMutation(LIKE_TARGET_PROPERTY); // Declares a mutation hook for liking a property using the Apollo Client, which returns a function (likeTargetProperty) that can be called to trigger the mutation.
 
 	const {
-		loading: getPropertiesLoading,
-		data: getPropertiesData,
-		error: getPropertiesError,
-		refetch: getPropertiesRefetch,
+		loading: getPropertiesLoading, // Destructures the loading state from useQuery, a boolean indicating if the query is in progress.
+		data: getPropertiesData, // Destructures the data returned by the query, which holds the response from the GraphQL server.
+		error: getPropertiesError, // Destructures the error state, which holds any errors that occur during the query.
+		refetch: getPropertiesRefetch, // Destructures the refetch function to allow re-executing the query when needed.
 	} = useQuery(GET_PROPERTIES, {
-		fetchPolicy: 'cache-and-network',
-		variables: { input: initialInput },
-		notifyOnNetworkStatusChange: true,
+		// Executes a GraphQL query named GET_PROPERTIES using the Apollo Client.
+		fetchPolicy: 'cache-and-network', // Sets the fetch policy to prioritize fetching from the network but also allows cached data to be returned while the network request is in progress.
+		variables: { input: initialInput }, // Specifies the input variables for the query, passing the initialInput as the query parameter.
+		notifyOnNetworkStatusChange: true, // Enables notifications when the network status changes, useful for tracking loading states.
 		onCompleted: (data: T) => {
-			setTrendProperties(data?.getProperties?.list);
+			// Callback function that runs when the query is successfully completed.
+			setTrendProperties(data?.getProperties?.list); // Updates the trendProperties state with the list of properties received from the query response.
 		},
 	});
 
@@ -146,6 +148,7 @@ const TrendProperties = (props: TrendPropertiesProps) => {
 	}
 };
 
+// Qiymatlar
 TrendProperties.defaultProps = {
 	initialInput: {
 		page: 1,
