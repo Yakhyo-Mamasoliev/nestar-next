@@ -96,7 +96,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 		},
 	});
 
-	/** LIFECYCLE **/
+	/** LIFECYCLE**/
 	useEffect(() => {
 		if (router.query.id) {
 			setPropertyId(router.query.id as string);
@@ -533,7 +533,7 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 								<Stack className={'title-pagination-box'}>
 									<Stack className={'title-box'}>
 										<Typography className={'main-title'}>Destination Property</Typography>
-										<Typography className={'sub-title'}>Aliquam lacinia</Typography>
+										<Typography className={'sub-title'}>Aliquam lacinia diam</Typography>
 									</Stack>
 									<Stack className={'pagination-box'}>
 										<WestIcon className={'swiper-similar-prev'} />
