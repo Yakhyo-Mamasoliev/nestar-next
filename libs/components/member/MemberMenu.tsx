@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Stack, Typography, Box, List, ListItem, Button } from '@mui/material';
 import useDeviceDetect from '../../hooks/useDeviceDetect';
-import Link from 'next/link';
+import NavLink from 'next/link';
 import { Member } from '../../types/member/member';
 import { REACT_APP_API_URL } from '../../config';
+import { useQuery } from '@apollo/client';
+import { GET_MEMBER } from '../../../apollo/user/query';
+import { T } from '../../types/common';
 
 interface MemberMenuProps {
 	subscribeHandler: any;
@@ -20,6 +23,20 @@ const MemberMenu = (props: MemberMenuProps) => {
 	const { memberId } = router.query;
 
 	/** APOLLO REQUESTS **/
+	const {
+		loading: getMemberLoading,
+		data: getMemberData,
+		error: getMemberError,
+		refetch: getMemberRefetch,
+	} = useQuery(GET_MEMBER, {
+		fetchPolicy: 'network-only',
+		variables: { input: memberId },
+		skip: !memberId,
+		notifyOnNetworkStatusChange: true,
+		onCompleted: (data: T) => {
+			setMember(data?.getMember);
+		},
+	});
 
 	if (device === 'mobile') {
 		return <div>MEMBER MENU MOBILE</div>;
@@ -48,7 +65,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 							<Button
 								variant="outlined"
 								sx={{ background: '#b9b9b9' }}
-								onClick={() => unsubscribeHandler(member?._id, null, memberId)}
+								onClick={() => unsubscribeHandler(member?._id, getMemberRefetch, memberId)}
 							>
 								Unfollow
 							</Button>
@@ -58,7 +75,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 						<Button
 							variant="contained"
 							sx={{ background: '#ff5d18', ':hover': { background: '#ff5d18' } }}
-							onClick={() => subscribeHandler(member?._id, null, memberId)}
+							onClick={() => subscribeHandler(member?._id, getMemberRefetch, memberId)}
 						>
 							Follow
 						</Button>
@@ -72,7 +89,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 						<List className={'sub-section'}>
 							{member?.memberType === 'AGENT' && (
 								<ListItem className={category === 'properties' ? 'focus' : ''}>
-									<Link
+									<NavLink
 										href={{
 											pathname: '/member',
 											query: { ...router.query, category: 'properties' },
@@ -93,11 +110,11 @@ const MemberMenu = (props: MemberMenuProps) => {
 												{member?.memberProperties}
 											</Typography>
 										</div>
-									</Link>
+									</NavLink>
 								</ListItem>
 							)}
 							<ListItem className={category === 'followers' ? 'focus' : ''}>
-								<Link
+								<NavLink
 									href={{
 										pathname: '/member',
 										query: { ...router.query, category: 'followers' },
@@ -145,10 +162,10 @@ const MemberMenu = (props: MemberMenuProps) => {
 											{member?.memberFollowers}
 										</Typography>
 									</div>
-								</Link>
+								</NavLink>
 							</ListItem>
 							<ListItem className={category === 'followings' ? 'focus' : ''}>
-								<Link
+								<NavLink
 									href={{
 										pathname: '/member',
 										query: { ...router.query, category: 'followings' },
@@ -196,7 +213,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 											{member?.memberFollowings}
 										</Typography>
 									</div>
-								</Link>
+								</NavLink>
 							</ListItem>
 						</List>
 					</Stack>
@@ -207,7 +224,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 							</Typography>
 							<List className={'sub-section'}>
 								<ListItem className={category === 'articles' ? 'focus' : ''}>
-									<Link
+									<NavLink
 										href={{
 											pathname: '/member',
 											query: { ...router.query, category: 'articles' },
@@ -229,7 +246,7 @@ const MemberMenu = (props: MemberMenuProps) => {
 												{member?.memberArticles}
 											</Typography>
 										</div>
-									</Link>
+									</NavLink>
 								</ListItem>
 							</List>
 						</div>
