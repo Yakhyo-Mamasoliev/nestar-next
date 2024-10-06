@@ -27,12 +27,11 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import 'swiper/css';
 import 'swiper/css/pagination';
-import { GET_PROPERTIES } from '../../apollo/user/query';
+import { GET_COMMENTS, GET_PROPERTIES, GET_PROPERTY } from '../../apollo/user/query';
 import { T } from '../../libs/types/common';
 import { Direction, Message } from '../../libs/enums/common.enum';
-import { CREATE_COMMENT, LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation';
 import { sweetErrorHandling, sweetMixinErrorAlert, sweetTopSmallSuccessAlert } from '../../libs/sweetAlert';
-import { GET_COMMENTS } from '../../apollo/admin/query';
+import { CREATE_COMMENT, LIKE_TARGET_PROPERTY } from '../../apollo/user/mutation';
 
 SwiperCore.use([Autoplay, Navigation, Pagination]);
 
@@ -68,14 +67,14 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 		data: getPropertyData,
 		error: getPropertyError,
 		refetch: getPropertyRefetch,
-	} = useQuery(GET_PROPERTIES, {
+	} = useQuery(GET_PROPERTY, {
 		fetchPolicy: 'network-only',
 		variables: { input: propertyId },
 		skip: !propertyId,
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			if (data?.getProperty) setProperty(data.getProperty);
-			if (data?.getProperty) setSlideImage(data.getProperty?.propertyImages[0]);
+			if (data?.getProperty) setProperty(data?.getProperty);
+			if (data?.getProperty) setSlideImage(data?.getProperty?.propertyImages[0]);
 		},
 	});
 
@@ -92,13 +91,18 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 				limit: 4,
 				sort: 'createdAt',
 				direction: Direction.DESC,
-				search: { locationList: property?.propertyLocation ? [property?.propertyLocation] : [] },
+				search: {
+					locationList: property?.propertyLocation ? [property?.propertyLocation] : [],
+				},
 			},
 		},
+
 		skip: !propertyId && !property,
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
-			if (data?.getProperties.list) setDestinationProperties(data?.getProperties?.list);
+			if (data?.getProperties?.list) {
+				setDestinationProperties(data?.getProperties?.list);
+			}
 		},
 	});
 
@@ -109,8 +113,10 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 		refetch: getCommentsRefetch,
 	} = useQuery(GET_COMMENTS, {
 		fetchPolicy: 'cache-and-network',
-		variables: { input: initialComment },
-		skip: !commentInquiry.search.commentRefId,
+		variables: {
+			input: initialComment,
+		},
+		skip: !commentInquiry.search?.commentRefId,
 		notifyOnNetworkStatusChange: true,
 		onCompleted: (data: T) => {
 			if (data?.getComments?.list) setPropertyComments(data?.getComments?.list);
@@ -136,35 +142,40 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 	}, [router]);
 
 	useEffect(() => {
-		if (commentInquiry.search.commentRefId) {
+		if (commentInquiry.search?.commentRefId) {
 			getCommentsRefetch({ input: commentInquiry });
 		}
 	}, [commentInquiry]);
-
 	/** HANDLERS **/
 	const changeImageHandler = (image: string) => {
 		setSlideImage(image);
 	};
 
-	// execute likeTargetProperty Mutation
 	const likePropertyHandler = async (user: T, id: string) => {
 		try {
 			if (!id) return;
-			if (!user._id) throw new Error(Message.SOMETHING_WENT_WRONG);
-			await likeTargetProperty({ variables: { input: id } });
+			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
+
+			await likeTargetProperty({
+				variables: { input: id },
+			});
+
 			await getPropertyRefetch({ input: id });
+
 			await getPropertiesRefetch({
 				input: {
 					page: 1,
 					limit: 4,
 					sort: 'createdAt',
 					direction: Direction.DESC,
-					search: { locationList: [property?.propertyLocation] },
+					search: {
+						locationList: [property?.propertyLocation],
+					},
 				},
 			});
+
 			await sweetTopSmallSuccessAlert('success', 800);
 		} catch (err: any) {
-			console.log('Error, likePropertyHandler:', err.message);
 			sweetMixinErrorAlert(err.message).then();
 		}
 	};
@@ -177,17 +188,22 @@ const PropertyDetail: NextPage = ({ initialComment, ...props }: any) => {
 	const createCommentHandler = async () => {
 		try {
 			if (!user._id) throw new Error(Message.NOT_AUTHENTICATED);
-			await createComment({ variables: { input: insertCommentData } });
+
+			await createComment({
+				variables: { input: insertCommentData },
+			});
+
 			setInsertCommentData({ ...insertCommentData, commentContent: '' });
+
 			await getCommentsRefetch({ input: commentInquiry });
 		} catch (err: any) {
-			await sweetErrorHandling(err);
+			sweetErrorHandling(err).then();
 		}
 	};
 
-	if (getPropertyLoading) {
+	if (getPropertiesLoading) {
 		return (
-			<Stack sx={{ display: 'flex', justifycontent: 'center', alignItems: 'center', width: '100%', height: '1000px' }}>
+			<Stack sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '1080' }}>
 				<CircularProgress size={'4rem'} />
 			</Stack>
 		);
