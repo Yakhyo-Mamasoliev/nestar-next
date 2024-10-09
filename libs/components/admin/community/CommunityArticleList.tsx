@@ -1,5 +1,5 @@
 import React from 'react';
-import Link from 'next/link';
+import NavLink from 'next/link';
 import {
 	Box,
 	Button,
@@ -153,22 +153,23 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 									<TableCell align="left">{article._id}</TableCell>
 									<TableCell align="left">
 										<Box component={'div'}>
-											{article.articleTitle}
-											<Link
-												href={`/community/detail?articleCategory=${article.articleCategory}&id=${article._id}`}
-												className={'img_box'}
-											>
-												<IconButton className="btn_window">
-													<Tooltip title={'Open window'}>
-														<OpenInBrowserRoundedIcon />
-													</Tooltip>
-												</IconButton>
-											</Link>
+											{article.articleTitle === BoardArticleStatus.ACTIVE && (
+												<NavLink
+													href={`/community/detail?articleCategory=${article.articleCategory}&id=${article._id}`}
+													className={'img_box'}
+												>
+													<IconButton className="btn_window">
+														<Tooltip title={'Open window'}>
+															<OpenInBrowserRoundedIcon />
+														</Tooltip>
+													</IconButton>
+												</NavLink>
+											)}
 										</Box>
 									</TableCell>
 									<TableCell align="left">{article.articleCategory}</TableCell>
 									<TableCell align="left" className={'name'}>
-										<Link href={`/member?memberId=${article?.memberData?._id}`}>
+										<NavLink href={`/member?memberId=${article?.memberData?._id}`}>
 											<Avatar
 												alt="Remy Sharp"
 												src={
@@ -179,7 +180,7 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 												sx={{ ml: '2px', mr: '10px' }}
 											/>
 											{article?.memberData?.memberNick}
-										</Link>
+										</NavLink>
 									</TableCell>
 									<TableCell align="center">{article?.articleViews}</TableCell>
 									<TableCell align="center">{article?.articleLikes}</TableCell>
@@ -187,7 +188,7 @@ const CommunityArticleList = (props: CommunityArticleListProps) => {
 										<Moment format={'DD.MM.YY HH:mm'}>{article?.createdAt}</Moment>
 									</TableCell>
 									<TableCell align="center">
-										{article.articleStatus === 'DELETE' ? (
+										{article.articleStatus === BoardArticleStatus.DELETE ? (
 											<Button
 												variant="outlined"
 												sx={{ p: '3px', border: 'none', ':hover': { border: '1px solid #000000' } }}
